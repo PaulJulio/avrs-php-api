@@ -6,5 +6,6 @@ if (!(class_exists(__NAMESPACE__ . '\Loader'))) {
 
 $api = new AVRSAPI();
 $api->setURL('/api/v1/test-records/');
+$api->enableDebug();
 $api->send();
 echo $api->getResult();

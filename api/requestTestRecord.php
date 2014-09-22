@@ -7,6 +7,7 @@ if (!(class_exists(__NAMESPACE__ . '\Loader'))) {
 $api = new AVRSAPI();
 $api->setURL('/api/v1/test-records/');
 $api->setMethod('POST');
+$api->enableDebug();
 // See /api/v1/test-records/conditions/ to view a list of bits to set for various inventory types
 $api->addPayload('conditions', 134217729);
 $api->send();

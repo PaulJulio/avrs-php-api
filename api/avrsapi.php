@@ -109,9 +109,13 @@ final class AVRSAPI {
 		);
 		if ($this->debug) {
 			$headers[] = 'X-AVRS-Challenge: Display';
+			$reqf      = fopen(__DIR__ . '/request.txt', 'w');
+			curl_setopt($ch, CURLOPT_STDERR, $reqf);
+			curl_setopt($ch, CURLOPT_VERBOSE, true);
+		} else {
+			curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 		}
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLINFO_HEADER_OUT, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		if ($this->method == 'GET') {
 			curl_setopt($ch, CURLOPT_HTTPGET, true);
@@ -138,6 +142,13 @@ final class AVRSAPI {
 		curl_close($ch);
 
 		if ($this->debug) {
+			fclose($reqf);
+			$resf = fopen(__DIR__ . '/result.txt', 'w');
+			fwrite($resf, $this->result);
+			fclose($resf);
+			$infof = fopen(__DIR__ . '/curlinfo.txt', 'w');
+			fwrite($infof, json_encode($this->info));
+			fclose($infof);
 			$jsonResult = json_decode($this->result, true);
 			if ($jsonResult['API-Challenge'] !== $this->challenge) {
 				echo "\n\n";
