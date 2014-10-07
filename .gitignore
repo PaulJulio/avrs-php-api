@@ -1,7 +1,10 @@
 /util/settings.ini
 
-/api/result.txt
+/api/result.json
 
 /api/request.txt
 
 /api/curlinfo.txt
+
+/samples/*.json
+/samples/*.txt

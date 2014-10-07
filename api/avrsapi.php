@@ -143,7 +143,7 @@ final class AVRSAPI {
 
 		if ($this->debug) {
 			fclose($reqf);
-			$resf = fopen(__DIR__ . '/result.txt', 'w');
+			$resf = fopen(__DIR__ . '/result.json', 'w');
 			fwrite($resf, $this->result);
 			fclose($resf);
 			$infof = fopen(__DIR__ . '/curlinfo.txt', 'w');
@@ -168,6 +168,17 @@ final class AVRSAPI {
 		return $this->result;
 	}
 
+    /**
+     * @return bool|string False if not in debug mode or the request file is not present, else the contents of the
+     * request file.
+     */
+    public function getRequest() {
+		if ($this->debug && file_exists(__DIR__ . '/request.txt')) {
+			return file_get_contents(__DIR__ . '/request.txt');
+		}
+		return false;
+	}
+
 	public function getInfo() {
 		return $this->info;
 	}
@@ -177,6 +188,12 @@ final class AVRSAPI {
 	}
 
 	public function enableDebug() {
+		if (file_exists(__DIR__ . '/request.txt')) {
+			unlink(__DIR__ . '/request.txt');
+		}
+		if (file_exists(__DIR__ . '/result.json')) {
+			unlink(__DIR__ . '/result.json');
+		}
 		$this->debug = true;
 	}
 

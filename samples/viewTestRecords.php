@@ -1,11 +1,13 @@
 <?php
-namespace api;
+namespace samples;
 if (!(class_exists(__NAMESPACE__ . '\Loader'))) {
 	require_once(realpath(__DIR__ . '/loader.php'));
 }
+use api;
 
-$api = new AVRSAPI();
+$api = new api\AVRSAPI();
 $api->setURL('/api/v1/test-records/');
 $api->enableDebug();
 $api->send();
+Writer::writeRequestResponse($api);
 echo $api->getResult();
