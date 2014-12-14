@@ -32,11 +32,11 @@ $api = new AVRSAPI();
 $api->enableDebug();
 $api->setURL('/api/v1/deals/');
 $api->setMethod('POST');
-$api->addPayload('vehicles', array(
+$api->addPayload('vehicles', array(array(
 	'vin'       => $reservation['vin']   , 
 	'plate'     => $reservation['plate'] , 
 	'insurance' => 'Y'                   , // for testing environment only, certify that the vehicle is insured
-));
+)));
 $api->addPayload('status', 'QF');
 $api->addPayload('transaction-type', 6);
 $api->send();
