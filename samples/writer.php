@@ -19,6 +19,9 @@ class Writer {
 		$fh = fopen(__DIR__ . '/' . $prefix . 'request.txt', 'w');
 		fwrite($fh, $request);
 		fclose($fh);
+		$fh = fopen(__DIR__ . '/' . $prefix . 'payload.json', 'w');
+		fwrite($fh, json_encode($api->getPayload()));
+		fclose($fh);
 	}
 
 	static public function writeResponse(api\AVRSAPI $api, $prefix = null) {

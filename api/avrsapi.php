@@ -22,6 +22,74 @@ final class AVRSAPI {
 	private $verify = true;
 	private $environment = 'sandbox'; // sandbox | secure
 
+	const ATTR_CLEAR_RDF            = 0x0001;
+	const ATTR_REGCARD_USE_LESSOR   = 0x0002;
+	const ATTR_NO_LIENHOLDER        = 0x0004;
+	const ATTR_DEALER_ROLLBACK      = 0x0008;
+	const ATTR_USE_LOCAL_INVENTORY  = 0x0010;
+	const ATTR_USE_LOCATION_FOR_RDF = 0x0020;
+
+	static $rdfCodes = array(
+		"3" => "Ownership Certificate or Application for Duplicate",
+		"5" => "Verification of Vehicle Identification Number",
+		"6" => "Last Registration Card Issued",
+		"7" => "Title from the State",
+		"8" => "Certificate of Non-Operation",
+		"9" => "Referred to California Highway Patrol for Inspection",
+		"A" => "Bill of Sale",
+		"B" => "Signature",
+		"C" => "Motor Vehicle Bond",
+		"E" => "Valid Weight Certificate",
+		"F" => "Official Brake and Light Adjustment",
+		"G" => "Error Statement",
+		"H" => "Driver License or Id Card Number",
+		"I" => "Lien Satisfied Is Required",
+		"J" => "Power of Attorney",
+		"K" => "Dealer Report of Sale",
+		"L" => "Require Physical Address of Trailer or Vessel",
+		"M" => "Letters of Administration or Testamentary",
+		"N" => "Statement of Facts",
+		"P" => "Transfer Without Probate",
+		"Q" => "Certificate of Cost and/or Vehicle Weight Change",
+		"R" => "Gross Vehicle Weight Declaration",
+		"T" => "Name Statement",
+		"U" => "Posting Fees Only",
+		"W" => "Odometer Disclosure Statement",
+		"Y" => "Lost/Wreck Date",
+		"Z" => "Other"
+	);
+
+	static $rdfBitmask = array(
+		"Z" => 0x00000001,
+		"3" => 0x00000002,
+		"5" => 0x00000004,
+		"6" => 0x00000008,
+		"7" => 0x00000010,
+		"8" => 0x00000020,
+		"9" => 0x00000040,
+		"A" => 0x00000080,
+		"B" => 0x00000100,
+		"C" => 0x00000200,
+		"E" => 0x00000400, // 1024, 2^10
+		"F" => 0x00000800,
+		"G" => 0x00001000,
+		"H" => 0x00002000,
+		"I" => 0x00004000,
+		"J" => 0x00008000,
+		"K" => 0x00010000,
+		"L" => 0x00020000,
+		"M" => 0x00040000,
+		"N" => 0x00080000,
+		"P" => 0x00100000, // 1048576, 2^20
+		"Q" => 0x00200000,
+		"R" => 0x00400000,
+		"T" => 0x00800000,
+		"U" => 0x01000000,
+		"W" => 0x02000000,
+		"Y" => 0x04000000,
+	);
+
+
 	public function __construct() {
 		$this->key        = Settings::get($this->environment.'/key');
 		$this->secret     = Settings::get($this->environment.'/secret');
@@ -58,6 +126,10 @@ final class AVRSAPI {
 
 	public function resetPayload() {
 		$this->payload = array();
+	}
+
+	public function getPayload() {
+		return $this->payload;
 	}
 
 	public function setURL($url) {
