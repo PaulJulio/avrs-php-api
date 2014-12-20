@@ -9,8 +9,8 @@ $api = new api\AVRSAPI();
 $api->setURL('/api/v1/test-records/');
 $api->setMethod('POST');
 $api->enableDebug();
-// See /api/v1/test-records/conditions/ to view a list of bits to set for various inventory types
-$api->addPayload('conditions', 134217729);
+// See https://github.com/PaulJulio/avrs-php-api/blob/master/api/testrecords.php for the bit listing
+$api->addPayload('conditions', api\TestRecords::BIT_AUTO | api\TestRecords::BIT_RENEWAL_DUE);
 $api->send();
 Writer::writeRequestResponse($api);
 echo $api->getResult();
