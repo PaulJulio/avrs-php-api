@@ -75,8 +75,7 @@ if (empty($response['deals'][0]['error-code'])) {
     $retryAttempts = 0;
     $api->resetPayload();
     $api->setMethod('PUT');
-    //$api->addPayload('id', $response['deals'][0]['id']);
-    $api->addPayload('id', 121787);
+    $api->addPayload('id', $response['deals'][0]['id']);
     $api->addPayload('status', 'R');
     $api->send();
     $response = json_decode($api->getResult(), true);
