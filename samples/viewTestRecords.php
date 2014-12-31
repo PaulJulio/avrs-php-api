@@ -7,7 +7,6 @@ use api;
 
 $api = new api\AVRSAPI();
 $api->setURL('/api/v1/test-records/');
-$api->enableDebug();
 $api->send();
 Writer::writeRequestResponse($api);
 echo $api->getResult();

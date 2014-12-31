@@ -29,7 +29,6 @@ if (!$haveReservation) {
 // create a deal with the required fields and immediately request fees
 // indicate that this is a posting-fees transaction
 $api = new AVRSAPI();
-$api->enableDebug();
 $api->setURL('/api/v1/deals/');
 $api->setMethod('POST');
 $api->addPayload('vehicles', array(array(

@@ -97,6 +97,18 @@ final class AVRSAPI {
 		$this->method     = 'GET';
 		$this->url        = '/api/v1/authentications/';
 		$this->payload    = array();
+		$verify           = Settings::get($this->environment.'/verify');
+		$debug            = Settings::get($this->environment.'/debug');
+		if (isset($verify)) {
+			$this->setSSLVerification((bool)$verify);
+		}
+		if (isset($debug)) {
+			if ((bool)$debug) {
+				$this->enableDebug();
+			} else {
+				$this->disableDebug();
+			}
+		}
 	}
 
 	public function setMethod($method) {
