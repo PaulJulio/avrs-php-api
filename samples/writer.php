@@ -4,6 +4,7 @@ if (!(class_exists(__NAMESPACE__ . '\Loader'))) {
 	require_once(realpath(__DIR__ . '/loader.php'));
 }
 use api;
+use util\Timezone;
 
 class Writer {
 
@@ -14,6 +15,7 @@ class Writer {
 			return;
 		}
 		if (!isset($prefix)) {
+			Timezone::setIfNoDefault();
 			$prefix = date(self::$prefixFormat);
 		}
 		$fh = fopen(__DIR__ . '/' . $prefix . 'request.txt', 'w');
@@ -24,17 +26,19 @@ class Writer {
 		fclose($fh);
 	}
 
-	static public function writeResponse(api\AVRSAPI $api, $prefix = null) {
+	static public function writeResponse(api\AVRSAPI $api, $prefix = null, $suffix = 'json') {
 		if (!isset($prefix)) {
+			Timezone::setIfNoDefault();
 			$prefix = date(self::$prefixFormat);
 		}
-		$fh = fopen(__DIR__ . '/' . $prefix . 'response.json', 'w');
+		$fh = fopen(__DIR__ . '/' . $prefix . 'response.' . $suffix, 'w');
 		fwrite($fh, $api->getResult());
 		fclose($fh);
 	}
 
 	static public function writeRequestResponse(api\AVRSAPI $api, $prefx = null) {
 		if (!isset($prefix)) {
+			Timezone::setIfNoDefault();
 			$prefix = date(self::$prefixFormat);
 		}
 		self::writeRequest($api, $prefix);

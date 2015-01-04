@@ -20,7 +20,7 @@ final class AVRSAPI {
 	private $info;
 	private $debug  = false;
 	private $verify = true;
-	private $environment = 'sandbox'; // sandbox | secure
+	private $environment;
 
 	const ATTR_CLEAR_RDF            = 0x0001;
 	const ATTR_REGCARD_USE_LESSOR   = 0x0002;
@@ -91,14 +91,19 @@ final class AVRSAPI {
 
 
 	public function __construct() {
-		$this->key        = Settings::get($this->environment.'/key');
-		$this->secret     = Settings::get($this->environment.'/secret');
-		$this->passphrase = Settings::get($this->environment.'/passphrase');
+		$this->environment = Settings::get('global/environment');
+		if (!isset($this->environment)) {
+			$this->environment = 'sandbox';
+			error_log('The environment was not set in the ini file, defaulting to sandbox', E_WARNING);
+		}
+		$this->key        = Settings::get($this->environment . '/key');
+		$this->secret     = Settings::get($this->environment . '/secret');
+		$this->passphrase = Settings::get($this->environment . '/passphrase');
 		$this->method     = 'GET';
 		$this->url        = '/api/v1/authentications/';
 		$this->payload    = array();
-		$verify           = Settings::get($this->environment.'/verify');
-		$debug            = Settings::get($this->environment.'/debug');
+		$verify           = Settings::get($this->environment . '/verify');
+		$debug            = Settings::get($this->environment . '/debug');
 		if (isset($verify)) {
 			$this->setSSLVerification((bool)$verify);
 		}
@@ -120,7 +125,7 @@ final class AVRSAPI {
 			$this->method = $method;
 				break;
 			default:
-			throw new Exception('Unrecognized Method');
+			throw new \Exception('Unrecognized Method');
 		}
 	}
 
@@ -263,7 +268,17 @@ final class AVRSAPI {
 		return false;
 	}
 
-	public function getInfo() {
+	/**
+	 * @param mixed $key
+	 * @return mixed
+	 */
+	public function getInfo($key = null) {
+		if (isset($key)) {
+			if (isset($this->info[$key])) {
+				return $this->info[$key];
+			}
+			return null;
+		}
 		return $this->info;
 	}
 
