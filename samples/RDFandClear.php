@@ -40,6 +40,10 @@ $api->addPayload('vehicles', array(array(
 $api->addPayload('status', 'QF');
 $api->addPayload('transaction-type', 6);
 $api->addPayload('rdf', AVRSAPI::$rdfBitmask['U']); // RDF Code U: Posting Fees Only
+$api->addPayload('avs', array(json_encode(array(
+    'street:0' => '770 E SHAW',
+    'zip'      => 93710
+)))); // the most common address for commercial vehicles is this Pac Bell address
 $api->send();
 $response = json_decode($api->getResult(), true);
 while ($retryAttempts++ < $retryMax && $response['deals'][0]['error-code'] == 'CADMV/Q023') {
@@ -56,6 +60,7 @@ if (empty($response['deals'][0]['error-code'])) {
     $retryAttempts = 0;
     $api->resetPayload();
     $api->setMethod('PUT');
+    $api->setURL('/api/v1/deals/');
     $api->addPayload('id', $response['deals'][0]['id']);
     $api->addPayload('status', 'QA');
     $api->send();
@@ -68,6 +73,29 @@ if (empty($response['deals'][0]['error-code'])) {
     }
     Writer::writeRequestResponse($api);
 }
+// download the RDF Receipt
+if (empty($response['deals'][0]['error-code'])) {
+    sleep(1); // just to be sure that we don't overwrite the first request/response pair
+    $retryAttempts = 0;
+    $api->resetPayload();
+    $api->setMethod('GET');
+    $api->setURL('/api/v1/deals/?pdf=1&id=' . $response['deals'][0]['id']);
+    $api->send();
+    $response = json_decode($api->getResult(), true);
+    while ($retryAttempts++ < $retryMax && $response['deals'][0]['error-code'] == 'CADMV/Q023') {
+        error_log('DMV Retry Code Encountered');
+        sleep($retryDelayBase * pow(2, $retryAttempts));
+        $api->send();
+        $response = json_decode($api->getResult(), true);
+    }
+    Writer::writeRequest($api);
+    if ($api->getInfo('http_code') == 200) {
+        Writer::writeResponse($api, null, 'pdf');
+    } else {
+        Writer::writeResponse($api, null, 'txt');
+    }
+}
+
 // transition into a ready state
 if (empty($response['deals'][0]['error-code'])) {
     sleep(1); // just to be sure that we don't overwrite the first request/response pair

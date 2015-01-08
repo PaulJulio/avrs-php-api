@@ -15,3 +15,5 @@ final class Loader {
 	}
 }
 spl_autoload_register('\samples\Loader::loadWithNameSpace');
+
+require_once(realpath(__DIR__ . '/../') . '/bootstrap.php');
