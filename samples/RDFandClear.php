@@ -40,10 +40,10 @@ $api->addPayload('vehicles', array(array(
 $api->addPayload('status', 'QF');
 $api->addPayload('transaction-type', 6);
 $api->addPayload('rdf', AVRSAPI::$rdfBitmask['U']); // RDF Code U: Posting Fees Only
-$api->addPayload('avs', array(json_encode(array(
+$api->addPayload('avs', array(
     'street:0' => '770 E SHAW',
     'zip'      => 93710
-)))); // the most common address for commercial vehicles is this Pac Bell address
+)); // the most common address for commercial vehicles is this Pac Bell address
 $api->send();
 $response = json_decode($api->getResult(), true);
 while ($retryAttempts++ < $retryMax && $response['deals'][0]['error-code'] == 'CADMV/Q023') {
@@ -95,7 +95,6 @@ if (empty($response['deals'][0]['error-code'])) {
         Writer::writeResponse($api, null, 'txt');
     }
 }
-
 // transition into a ready state
 if (empty($response['deals'][0]['error-code'])) {
     sleep(1); // just to be sure that we don't overwrite the first request/response pair

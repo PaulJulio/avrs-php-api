@@ -9,4 +9,4 @@ $api = new api\AVRSAPI();
 $api->setURL('/api/v1/test-records/');
 $api->send();
 Writer::writeRequestResponse($api);
-echo $api->getResult();
+var_export(json_decode($api->getResult(),true));
