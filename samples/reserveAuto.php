@@ -9,4 +9,4 @@ use api\TestRecords as TestRecords;
 $bitmask     = (TestRecords::BIT_AUTO | TestRecords::BIT_RENEWAL_DUE);
 $reservation = TestRecords::reserveRecord($bitmask);
 
-error_log(sprintf('Reserved Plate: %s VIN: %s', $reservation['plate'], $reservation['plate']), E_NOTICE);
+error_log(sprintf('Reserved Plate: %s VIN: %s', $reservation['plate'], $reservation['vin']), E_NOTICE);
