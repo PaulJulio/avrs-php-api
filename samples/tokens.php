@@ -16,3 +16,4 @@ $api->resetPayload();
 $api->setMethod('DELETE');
 $api->addPayload('id', $response['keys'][0]['id']);
 $api->send();
+Writer::writeRequestResponse($api);
