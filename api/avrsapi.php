@@ -167,7 +167,7 @@ final class AVRSAPI {
 		$challenge .= 'X-AVRS-Key=' . $this->key . ';';
 		$challenge .= 'X-AVRS-Passphrase=' . $this->passphrase . ';';
 		$challenge .= 'Method=' . $this->method . ';';
-		$challenge .= self::collapseKeyValues($this->payload);
+        $challenge .= self::collapseKeyValues($this->payload);
 		$challenge .= 'URI=' . parse_url($this->getURL(), PHP_URL_PATH);
 		if (parse_url($this->getURL(), PHP_URL_QUERY) != '') {
 			$challenge .= '?' . parse_url($this->url, PHP_URL_QUERY);
