@@ -16,20 +16,12 @@ $api = new AVRSAPI();
 $api->setURL('/api/v1/deals/');
 $api->setMethod('POST');
 $api->addPayload('owners', [[
-                                'street:0' => '123 Main St',
-                                'city'     => 'WINDSOR',
-                                'type'     => 'owner',
-                                'zip'      => 95492,
-                                'name:0'   => 'DOE JANE',
-                                'dl-type'  => 'unlicensed',
+                                'zip' => 95492,
                             ]]);
 $api->addPayload('vehicles', [[
                                   'cost'                => 45000,
                                   'first-operated-date' => '2017-11-11',
                                   'first-sold-date'     => '2017-11-11',
-                                  'odometer'            => 11,
-                                  'odometer-code'       => 'actual',
-                                  'odometer-unit'       => 'M',
                                   'vin'                 => '3B7HC13YXYG105749',
                                   // following values can be retrieved from the VIN API
                                   'fuel-type'           => 'F',
@@ -39,10 +31,9 @@ $api->addPayload('vehicles', [[
                                   'type-license-code'   => 11,
 
                               ]]);
-$api->addPayload('attributes', 4); // no lien holder
-$api->addPayload('dealer-number', 12345);
 $api->addPayload('status', 'QF');
 $api->addPayload('transaction-type', 3);
+$api->addPayload('gateway-type', 'CALC-CA');
 $api->send();
 $response = json_decode($api->getResult(), true);
 while ($retryAttempts++ < $retryMax && $response['deals'][0]['error-code'] == 'CADMV/Q023') {
