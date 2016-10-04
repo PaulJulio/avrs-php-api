@@ -150,37 +150,13 @@ function getUsers(array $usernames)
  */
 function getMatchingUsernames(array $usernames)
 {
-    if (count($usernames) == 0) {
-        return [];
-    }
-    
-    // Add quotes for safety around each username, and implode the array using ',' as glue
-    $_usernames = [];
-    foreach ($usernames as $un) {
-        $_usernames[] = '"'.$un.'"';
-    }
-    $apiJsonPredicateString = '{"_in":['.implode(',', $_usernames).']}';
+    $users = getUsers($usernames);
 
-    // Query AVRS
-    $api = new AVRSAPI();
-    $api->setMethod('GET');
-    $api->setURL('/api/v1.5/users/?username='.$apiJsonPredicateString);
-    $api->send();
-    $httpInfo = $api->getInfo();
-    $results = json_decode($api->getResult(), true);
-    if ($httpInfo['http_code'] != 200) {
-        print_r($results);
-        throw new \Exception('Unable to retrieve existing user list.  Received http error code: '.$httpInfo['http_code']);
+    $matches = [];
+    foreach ($users as $user) {
+        $matches[] = $user['username'];
     }
-    
-    $usernames = [];
-    if (is_array($results) && isset($results['users']) && is_array($results['users'])) {
-        foreach ($results['users'] as $idx => $field) {
-            $usernames[] = $results['users'][$idx]['username'];
-        }
-        return $usernames;
-    }
-    return [];
+    return $matches;
 }
 
 
