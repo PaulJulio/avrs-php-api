@@ -23,13 +23,14 @@ try {
     $usersToCreate = array_diff($usernames, $existingUsernames);
     foreach ($usersToCreate as $idx => $username)
     {
-        $userDetails = [];
-        $userDetails['username']        = $username;
-        $userDetails['active']          = 'T';
-        $userDetails['lid']             = '1616';
-        $userDetails['cid']             = 11;
-        $userDetails['fullname']        = 'Fee Calc Test User '.$idx;
-        $userDetails['email']           = 'abc@example.com';
+        $userDetails = [
+            'username'  => $username,
+            'active'    => 'T',
+            'lid'       => '1616',
+            'cid'       => 11,
+            'fullname'  => 'Fee Calc Test User '.$idx,
+            'email'     => 'abc@example.com',
+        ];
         
         echo 'Creating user "'.$username.'"'.PHP_EOL;
         createUser($userDetails);
@@ -39,40 +40,26 @@ try {
     echo "Retrieving the full user set...".PHP_EOL;
     $users = getUsers($usernames);
     
-    // Remove existing API keys for any of these users (constrained to 2, and need secret for each anyway)
-    $userIds = [];
-    foreach ($users as $idx => $user) {
-        $userIds[] = $user['uid'];
-    }
-    echo "Searching for any existing API keys for the user set...".PHP_EOL;
-    $existingKeys = getApiKeysByUserIds($userIds);
-    echo 'Found '.count($existingKeys).' existing keys for UserIds ['.implode(',', $userIds).'].'.PHP_EOL;
-    if (count($existingKeys) >= 1) {
-        foreach ($existingKeys as $idx => $apiKey) {
-            $id = $apiKey['id'];
-            echo '...Deleting API key with ID of '.$id.'.'.PHP_EOL;     // Note: API does not support IN for deletion
-            deleteApiKey($id);
-        }
-    }
-
+    // Each user can have at most 2 keys.  If 2 already, delete the oldest.
+    echo "Analyzing API keys to obey the two key limit...".PHP_EOL;
+    cleanupApiKeysForUsers($users);
+    
     // Create a new key for each of the users
     foreach ($users as $user) {
-        $keyDetails = [];
-        $keyDetails['uid']          = $user['uid'];
-        $keyDetails['lid']          = $user['lid'];
-        $keyDetails['passphrase']   = md5(PASSPHRASE);
+        $keyDetails = [
+            'uid'           => $user['uid'],
+            'lid'           => $user['lid'],
+            'passphrase'    => md5(PASSPHRASE),
+        ];
 
         echo 'Generating API key for UID '.$keyDetails['uid'].' / LID '.$keyDetails['lid']. PHP_EOL;
         createApiKey($keyDetails);
-    }    
-    
-    
+    }
 } catch (\Exception $e) {
     echo "Exception: ".$e->getMessage().PHP_EOL;
     exit(1);
 }
 exit(0);
-
 
 
 
@@ -191,6 +178,57 @@ function getApiKeysByUserIds(array $userIds)
         return $results['keys'];
     }
     return [];
+}
+
+
+/**
+ * Each user can have a maximum of 2 keys (currently) per environment.
+ * If a user has two keys, delete the oldest to make room for a new key.
+ * Array { [userId] => { 
+ *              [count] => number of keys
+ *              [earliest-key-id] => key id
+ *              [earliest-creation-time] => timestamp of earliest recorded creation time
+ * 
+ * @param $users
+ */
+function cleanupApiKeysForUsers(array $users)
+{
+    $userIds = [];
+    foreach ($users as $idx => $user) {
+        $userIds[] = $user['uid'];
+    }
+    $existingKeys = getApiKeysByUserIds($userIds);
+    echo 'Found '.count($existingKeys).' existing keys for UserIds ['.implode(',', $userIds).'].'.PHP_EOL;
+
+    $keyData = [];
+    foreach ($existingKeys as $apiKeyDetails) {
+        $userId = $apiKeyDetails['uid'];
+        $keyId = $apiKeyDetails['id'];
+        $compareTime = strtotime($apiKeyDetails['create-time']);
+        // First key encountered
+        if (!isset($keyData[$userId])) {
+            $keyData[$userId] = [
+                'count' => 1,
+                'earliest-key-id' => $keyId,
+                'earliest-creation-time' => $compareTime,
+            ];
+        }
+        // Successive key encountered
+        else {
+            $keyData[$userId]['count']++;
+            if ($compareTime < $keyData[$userId]['earliest-creation-time']) {
+                $keyData[$userId]['earliest-key-id'] = $keyId;
+                $keyData[$userId]['earliest-creation-time'] = $compareTime;
+            }
+        }
+    }
+    foreach ($keyData as $uid => $details) {
+        if ($details['count'] >= 2) {
+            // Note: API does not support predicates for deletion.  Keys must be deleted singularly.
+            echo '...Deleting API key with UID='.$uid.' and KeyID='.$details['earliest-key-id'].'.'.PHP_EOL;
+            deleteApiKey($details['earliest-key-id']);
+        }
+    }
 }
 
 
