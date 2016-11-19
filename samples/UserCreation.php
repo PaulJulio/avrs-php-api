@@ -24,12 +24,13 @@ try {
     foreach ($usersToCreate as $idx => $username)
     {
         $userDetails = [
-            'username'  => $username,
-            'active'    => 'T',
-            'lid'       => '1616',
-            'cid'       => 11,
-            'fullname'  => 'Fee Calc Test User '.$idx,
-            'email'     => 'abc@example.com',
+            'username'          => $username,
+            'active'            => 'T',
+            'has-api-access'    => 'T',
+            'lid'               => '1616',
+            'cid'               => 11,
+            'fullname'          => 'Fee Calc Test User '.$idx,
+            'email'             => 'abc@example.com',
         ];
         
         echo 'Creating user "'.$username.'"'.PHP_EOL;
