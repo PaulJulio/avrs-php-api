@@ -21,6 +21,7 @@ final class AVRSAPI {
 	private $debug  = false;
 	private $verify = true;
 	private $environment;
+	private $port = 443;
 
 	const ATTR_CLEAR_RDF            = 0x0001;
 	const ATTR_REGCARD_USE_LESSOR   = 0x0002;
@@ -104,6 +105,7 @@ final class AVRSAPI {
 		$this->payload    = array();
 		$verify           = Settings::get($this->environment . '/verify');
 		$debug            = Settings::get($this->environment . '/debug');
+		$port             = Settings::get($this->environment . '/port');
 		if (isset($verify)) {
 			$this->setSSLVerification((bool)$verify);
 		}
@@ -114,6 +116,9 @@ final class AVRSAPI {
 				$this->disableDebug();
 			}
 		}
+		if (isset($port)) {
+		    $this->port = $port;
+        }
 	}
 
 	public function setMethod($method) {
@@ -206,6 +211,7 @@ final class AVRSAPI {
 		}
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_PORT, $this->port);
 		if ($this->method == 'GET') {
 			curl_setopt($ch, CURLOPT_HTTPGET, true);
 		} elseif ($this->method == 'POST') {
