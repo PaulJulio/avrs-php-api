@@ -42,6 +42,9 @@ class Logger {
         if (!isset($dir)) {
             $dir = __DIR__ . '/../log/';
         }
+        if (!isset($suffix)) {
+		    $suffix = 'json';
+        }
 		self::writeRequest($api, $prefix, $dir);
 		self::writeResponse($api, $prefix, $suffix, $dir);
 	}
