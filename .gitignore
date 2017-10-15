@@ -1,11 +1,4 @@
-/util/settings.ini
-
-/api/result.json
-
-/api/request.txt
-
-/api/curlinfo.txt
-
-/samples/*.json
-/samples/*.txt
-/samples/*.pdf
+/vendor/
+.vagrant
+.idea/*
+composer.phar

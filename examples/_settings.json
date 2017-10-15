@@ -1,0 +1,30 @@
+{
+  "active": "sandbox",
+  "sandbox": {
+    "host": "https://sandbox-ca-avrs.cvrconnect.com",
+    "port": 443,
+    "key": "abcdefghijklmnopqrstuvwxyz123456",
+    "secret": "abcdefghijklmnopqrstuvwxyz123456",
+    "passphrase": "my super secret passphrase",
+    "verifySSL": true,
+    "debug": true
+  },
+  "volume-readiness": {
+    "host": "https://beta.avrs.com",
+    "port": 443,
+    "key": "abcdefghijklmnopqrstuvwxyz123456",
+    "secret": "abcdefghijklmnopqrstuvwxyz123456",
+    "passphrase": "my super secret passphrase",
+    "verifySSL": true,
+    "debug": false
+  },
+  "general-release": {
+    "host": "https://secure.avrs.com",
+    "port": 443,
+    "key": "abcdefghijklmnopqrstuvwxyz123456",
+    "secret": "abcdefghijklmnopqrstuvwxyz123456",
+    "passphrase": "my super secret passphrase",
+    "verifySSL": true,
+    "debug": false
+  }
+}

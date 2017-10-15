@@ -1,10 +1,7 @@
 <?php
-namespace api;
-if (!(class_exists(__NAMESPACE__ . '\Loader'))) {
-	require_once(realpath(__DIR__ . '/loader.php'));
-}
+namespace PaulJulio\AvrsApi;
 
-use util\Settings as Settings;
+use \Exception;
 
 final class AVRSAPI {
 
@@ -20,7 +17,7 @@ final class AVRSAPI {
 	private $info;
 	private $debug  = false;
 	private $verify = true;
-	private $environment;
+	private $host;
 	private $port = 443;
 
 	const ATTR_CLEAR_RDF            = 0x0001;
@@ -91,35 +88,38 @@ final class AVRSAPI {
 	);
 
 
-	public function __construct() {
-		$this->environment = Settings::get('global/environment');
-		if (!isset($this->environment)) {
-			$this->environment = 'sandbox';
-			error_log('The environment was not set in the ini file, defaulting to sandbox', E_WARNING);
-		}
-		$this->key        = Settings::get($this->environment . '/key');
-		$this->secret     = Settings::get($this->environment . '/secret');
-		$this->passphrase = Settings::get($this->environment . '/passphrase');
-		$this->method     = 'GET';
-		$this->url        = '/api/v1/authentications/';
-		$this->payload    = array();
-		$verify           = Settings::get($this->environment . '/verify');
-		$debug            = Settings::get($this->environment . '/debug');
-		$port             = Settings::get($this->environment . '/port');
-		if (isset($verify)) {
-			$this->setSSLVerification((bool)$verify);
-		}
-		if (isset($debug)) {
-			if ((bool)$debug) {
-				$this->enableDebug();
-			} else {
-				$this->disableDebug();
-			}
-		}
-		if (isset($port)) {
-		    $this->port = $port;
+	private function __construct() {}
+
+    /**
+     * @param AvrsApiSO $settings
+     * @return static
+     * @throws Exception
+     */
+	public static function Factory(AvrsApiSO $settings)
+    {
+        if (!$settings->isValid()) {
+            throw new Exception('Invalid Settings Object');
         }
-	}
+        $instance = new static;
+        $instance->key = $settings->getKey();
+        $instance->secret = $settings->getSecret();
+        $instance->passphrase = $settings->getPassphrase();
+        $instance->host = $settings->getHost();
+        $instance->port = $settings->getPort();
+        $instance->setSSLVerification($settings->getVerifySSL());
+        if ($settings->getDebug()) {
+            $instance->enableDebug();
+        } else {
+            $instance->disableDebug();
+        }
+
+        // defaults
+        $instance->method = 'GET';
+        $instance->url = '/api/v1/authentications/';
+        $instance->payload = [];
+
+        return $instance;
+    }
 
 	public function setMethod($method) {
 		switch ($method) {
@@ -130,7 +130,7 @@ final class AVRSAPI {
 			$this->method = $method;
 				break;
 			default:
-			throw new \Exception('Unrecognized Method');
+			throw new Exception('Unrecognized Method');
 		}
 	}
 
@@ -147,7 +147,7 @@ final class AVRSAPI {
 	}
 
 	public function resetPayload() {
-		$this->payload = array();
+		$this->payload = [];
 	}
 
 	public function getPayload() {
@@ -159,7 +159,7 @@ final class AVRSAPI {
 	}
 
 	public function getURL() {
-		return Settings::get($this->environment . '/domain') . $this->url;
+		return $this->url;
 	}
 
 	private function composeChallenge() {
@@ -173,8 +173,8 @@ final class AVRSAPI {
 		$challenge .= 'X-AVRS-Passphrase=' . $this->passphrase . ';';
 		$challenge .= 'Method=' . $this->method . ';';
         $challenge .= self::collapseKeyValues($this->payload);
-		$challenge .= 'URI=' . parse_url($this->getURL(), PHP_URL_PATH);
-		if (parse_url($this->getURL(), PHP_URL_QUERY) != '') {
+		$challenge .= 'URI=' . parse_url($this->host . $this->url, PHP_URL_PATH);
+		if (parse_url($this->host . $this->url, PHP_URL_QUERY) != '') {
 			$challenge .= '?' . parse_url($this->url, PHP_URL_QUERY);
 		}
 		$challenge .= ';';
@@ -193,7 +193,7 @@ final class AVRSAPI {
 	public function send() {
 		$this->composeChallenge();
 		$signature = md5($this->challenge . $this->secret . md5($this->passphrase));
-		$ch        = curl_init($this->getURL());
+		$ch        = curl_init($this->host . $this->url);
 		$headers   = array(
 			'X-AVRS-Epoch: ' . $this->time,
 			'X-AVRS-Key:' . $this->key,
@@ -246,13 +246,13 @@ final class AVRSAPI {
 			fclose($infof);
 			$jsonResult = json_decode($this->result, true);
 			if ($jsonResult['API-Challenge'] !== $this->challenge) {
-				echo "\n\n";
-				echo str_repeat("-", 80);
-				echo "\nDEBUG: CHALLENGE MISMATCH!\n";
-				echo "SENT: " . $this->challenge  . "\n";
-				echo "RECV: " . $jsonResult['API-Challenge'] . "\n";
-				echo str_repeat("-", 80);
-				echo "\n\n";
+				error_log("\n\n");
+				error_log(str_repeat("-", 80));
+				error_log("\nDEBUG: CHALLENGE MISMATCH!\n");
+				error_log("SENT: " . $this->challenge  . "\n");
+				error_log("RECV: " . $jsonResult['API-Challenge'] . "\n");
+				error_log(str_repeat("-", 80));
+				error_log("\n\n");
 			}
 		}
 

@@ -1,0 +1,1 @@
+Be sure to copy _settings.json to settings.json and modify it to your needs.

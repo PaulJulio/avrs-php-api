@@ -1,0 +1,19 @@
+{
+  "name": "pauljulio/avrs-php-api",
+  "description": "API consumer with examples for popular use cases",
+  "minimum-stability": "dev",
+  "license": "apache v2",
+  "authors": [
+    {
+      "name": "Paul Hulett",
+      "email": "paulhulett@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "PaulJulio\\AvrsApi\\": "src",
+      "PaulJulio\\AvrsApi\\Examples\\": "examples",
+      "PaulJulio\\AvrsApi\\Public\\": "public"
+    }
+  }
+}

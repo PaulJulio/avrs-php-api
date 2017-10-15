@@ -1,8 +1,5 @@
 <?php
-namespace api;
-if (!(class_exists(__NAMESPACE__ . '\Loader'))) {
-	require_once(realpath(__DIR__ . '/loader.php'));
-}
+namespace PaulJulio\AvrsApi;
 
 final class TestRecords {
 
@@ -35,19 +32,19 @@ final class TestRecords {
 	const BIT_RDF_ON_FILE        = 0x4000000; // a Report of Deposit of Fees is on file
 	const BIT_RENEWAL_DUE        = 0x8000000; // vehicle is due for renewal
 
-	public static function getRecords() {
-		$api = new AVRSAPI();
+	public static function getRecords(AvrsApiSO $settings) {
+		$api = AVRSAPI::Factory($settings);
 		$api->setURL('/api/v1/test-records/');
 		$api->send();
 		$result = json_decode($api->getResult(), true);
 		if (isset($result['test-records'])) {
 			return $result['test-records'];
 		}
-		return array();
+		return [];
 	}
 
-	public static function reserveRecord($conditions = 0xfffffff) {
-		$api = new AVRSAPI();
+	public static function reserveRecord(AvrsApiSO $settings, $conditions = 0xfffffff) {
+        $api = AVRSAPI::Factory($settings);
 		$api->setURL('/api/v1/test-records/');
 		$api->setMethod('POST');
 		$api->addPayload('conditions', $conditions);
