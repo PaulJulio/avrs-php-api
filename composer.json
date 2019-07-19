@@ -2,7 +2,7 @@
   "name": "pauljulio/avrs-php-api",
   "description": "API consumer with examples for popular use cases",
   "minimum-stability": "dev",
-  "license": "apache v2",
+  "license": "MIT",
   "authors": [
     {
       "name": "Paul Hulett",
